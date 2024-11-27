@@ -12,11 +12,11 @@ initial_ets <- ets(train_ts, model = "ANA")
 data_ts <- ts(citibike$demand, start = c(2023, 1), frequency = 24)
 
 # Filter the test data (after April 2023)
-test_data <- citibike %>%
-  filter(time > "2023-04-30")
+test_data <- citibike[(row_position+1):nrow(citibike), ]
 
 # Create the test time series object
 test_ts <- ts(test_data$demand, start = c(2023, 5), frequency = 24)
+
 # Length of training data and test data
 n_train <- length(train_ts)
 n_test <- length(test_ts)
@@ -53,13 +53,15 @@ for (i in sequence) {
   ets_forecasts <- c(ets_forecasts,forecast(ets_fit, h = h)$mean)
 }
 
+
 # Calculate Error Metrics (Should still consider more + ones in paper)
 # Delete last observation of test_ts as for 24 hour forecasts there is one observation extra (should check if this is accurate) 
-arima_rmse <- sqrt(mean((arima_forecasts - test_ts[-length(test_ts)])^2))
-sarima_rmse <- sqrt(mean((sarima_forecasts - test_ts[-length(test_ts)])^2))
-ets_rmse <- sqrt(mean((ets_forecasts - test_ts[-length(test_ts)])^2))
+arima_rmse <- sqrt(mean((arima_forecasts - test_ts)^2))
+sarima_rmse <- sqrt(mean((sarima_forecasts - test_ts)^2))
+ets_rmse <- sqrt(mean((ets_forecasts - test_ts)^2))
 
 # Print RMSE results
 cat("ARIMA RMSE: ", arima_rmse, "\n")
 cat("SARIMA RMSE: ", sarima_rmse, "\n")
 cat("ETS RMSE: ", ets_rmse, "\n")
+
