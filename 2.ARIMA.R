@@ -9,8 +9,10 @@ citibike$time <- as.POSIXct(paste(citibike$year, citibike$month, citibike$day, c
                             format="%Y %m %d %H", tz="UTC")
 
 # Filter the data from January 2023 to April 2023
-train_data <- citibike %>%
-  filter(time >= "2023-01-01" & time <= "2023-04-30")
+row_position <- which(rownames(citibike) == "X2023.04.30.23")
+
+# Filter the rows from the beginning to that position
+train_data <- citibike[1:row_position, ]
 
 # Create a time series object for the 'demand' variable (frequency = 24 hours)
 train_ts <- ts(train_data$demand, start = c(2023, 1), frequency = 24)
