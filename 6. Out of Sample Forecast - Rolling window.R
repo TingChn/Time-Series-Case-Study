@@ -55,7 +55,6 @@ for (i in sequence) {
 
 
 # Calculate Error Metrics (Should still consider more + ones in paper)
-# Delete last observation of test_ts as for 24 hour forecasts there is one observation extra (should check if this is accurate) 
 arima_rmse <- sqrt(mean((arima_forecasts - test_ts)^2))
 sarima_rmse <- sqrt(mean((sarima_forecasts - test_ts)^2))
 ets_rmse <- sqrt(mean((ets_forecasts - test_ts)^2))
