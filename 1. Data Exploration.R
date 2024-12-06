@@ -108,14 +108,42 @@ adf.test(citibike$demand)
 #What to Look For:
 #A strong trend component indicates non-stationarity.
 #Seasonality patterns may also suggest periodic changes affecting stationarity.
-#Convert to time series object
-citibike_ts <- ts(citibike$demand, frequency = 24 * 7)  # Weekly seasonality assumed
+
+#Let's check if we can fit a clear linear trend to the hourly data 
+ggplot(citibike, aes(x = time, y = demand)) +
+  geom_line(color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Adding regression line
+  labs(title = "Hourly Demand for Citi Bikes (Jan-May 2023)",
+       x = "Time", y = "Demand") +
+  theme_minimal()
+
+#Add the first difference of the demand data
+citibike$diff_demand[1] <- 0
+citibike$diff_demand[2:3624] <- diff(citibike$demand)
+
+#Try and fit a linear trend to the first difference in demand
+ggplot(citibike, aes(x = time, y = diff_demand)) +
+  geom_line(color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Adding regression line
+  labs(title = "First Difference Hourly Demand for Citi Bikes (Jan-May 2023)",
+       x = "Time", y = "Demand") +
+  theme_minimal()
+
+#Note that now the data looks "more" stationary and there is no clear linear trend 
+
+
+
+#Transform the data set into ts series
+citibike_ts <- ts(citibike$demand, frequency = 24)  # daily seasonality assumed
+diff_citibike_ts <- ts(citibike$diff_demand, frequency = 24)
 
 # Decompose the series
 decomposed <- decompose(citibike_ts)
+decomposed_diff <- decompose(diff_citibike_ts)
 
 # Plot decomposition
 plot(decomposed)
+plot(decomposed_diff)
 
 #Lag plots show the relationship between a time series and its lagged values. For a stationary series, the relationships should be consistent:
 #What to Look For:
