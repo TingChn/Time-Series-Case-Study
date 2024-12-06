@@ -4,8 +4,8 @@
 # Initialize models on the full training dataset initially
 initial_arima <- arima(train_ts, order = c(2, 1, 0))
 initial_sarima <- arima(train_ts,
-                        order = c(1, 0, 1),     # Non-seasonal AR(1), MA(1), differencing=0
-                        seasonal = list(order = c(1, 0, 1), period = 24))  # Seasonal AR(1), MA(1), differencing=0, S=168
+                        order = c(2, 0, 0),     # Non-seasonal AR(1), MA(1), differencing=0
+                        seasonal = list(order = c(2, 1, 0), period = 24))  # Seasonal AR(1), MA(1), differencing=0, S=168
 
 initial_ets <- ets(train_ts, model = "ANA")
 
@@ -22,10 +22,10 @@ n_test <- length(test_ts)
 sequence <- seq(24, n_test, by = 24)
 h <- 24
 
-# Initialize vectors for forecasts
-arima_forecasts <- c()
-sarima_forecasts <- c()
-ets_forecasts <- c()
+# Initialize vectors for forecasts ("_exp") is there 
+arima_forecasts_exp <- c()
+sarima_forecasts_exp <- c()
+ets_forecasts_exp <- c()
 
 # Expanding Window Forecasting with Incremental Updates
 for (i in sequence) {
@@ -35,24 +35,35 @@ for (i in sequence) {
   # Fit models on the updated training data
   arima_fit <- arima(current_train, order = c(2, 1, 0))
   sarima_fit <-  arima(current_train,
-                       order = c(1, 0, 1),     # Non-seasonal AR(1), MA(1), differencing=0
-                       seasonal = list(order = c(1, 0, 1), period = 24))  # Seasonal AR(1), MA(1), differencing=0, S=168
+                       order = c(2, 0, 0),     # Non-seasonal AR(1), MA(1), differencing=0
+                       seasonal = list(order = c(2, 1, 0), period = 24))  # Seasonal AR(1), MA(1), differencing=0, S=168
   
   ets_fit <- ets(current_train, model = "ANA")
   # Forecast the next 24 hours
   # Save the forecasts
-  arima_forecasts <- c(arima_forecasts, forecast(arima_fit, h = h)$mean)
-  sarima_forecasts <- c(sarima_forecasts,forecast(sarima_fit, h = h)$mean)
-  ets_forecasts <- c(ets_forecasts,forecast(ets_fit, h = h)$mean)
+  arima_forecasts_exp <- c(arima_forecasts_exp, forecast(arima_fit, h = h)$mean)
+  sarima_forecasts_exp <- c(sarima_forecasts_exp,forecast(sarima_fit, h = h)$mean)
+  ets_forecasts_exp <- c(ets_forecasts_exp,forecast(ets_fit, h = h)$mean)
+  
+  cat(i/24)
 }
 
-# Calculate Error Metrics (Should still consider more + ones in paper)
-# Delete last observation of test_ts as for 24 hour forecasts there is one observation extra (should check if this is accurate) 
-arima_rmse <- sqrt(mean((arima_forecasts - test_ts)^2))
-sarima_rmse <- sqrt(mean((sarima_forecasts - test_ts)^2))
-ets_rmse <- sqrt(mean((ets_forecasts - test_ts)^2))
+#This automatically computes more comparison forecast accuracy measures  
+accuracy(arima_forecasts_exp, test_ts)
+accuracy(sarima_forecasts_exp, test_ts)
+accuracy(ets_forecasts_exp, test_ts)
 
-# Print RMSE results
-cat("ARIMA RMSE: ", arima_rmse, "\n")
-cat("SARIMA RMSE: ", sarima_rmse, "\n")
-cat("ETS RMSE: ", ets_rmse, "\n")
+#Look at the performance of the forecast over the entire test sample
+#Still have to change the x-axis
+par(mfrow = c(1, 1))
+plot(test_ts, lwd =2)
+lines( ts(arima_forecasts_exp, start = c(2023, 5), frequency = 24), col= "red")
+lines( ts(sarima_forecasts_exp, start = c(2023, 5), frequency = 24), col= "green")
+lines( ts(ets_forecasts_exp, start = c(2023, 5), frequency = 24), col= "blue")
+
+#Look also at just the forecast of day one
+par(mfrow = c(1, 1))
+plot(test_ts[0:23], type='l')
+lines( arima_forecasts_exp[0:23], col= "red")
+lines( sarima_forecasts_exp[0:23], col= "green")
+lines( ets_forecasts_exp[0:23], col= "blue")
