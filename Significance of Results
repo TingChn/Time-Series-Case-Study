@@ -1,0 +1,32 @@
+library(forecast)
+library(MCS)
+
+# Forecast errors
+arima_errors <- test_ts - ts(arima_forecasts_exp, start = c(2023, 5), frequency = 24)
+sarima_errors <- test_ts - ts(sarima_forecasts_exp, start = c(2023, 5), frequency = 24)
+ets_errors <- test_ts - ts(ets_forecasts_exp, start = c(2023, 5), frequency = 24)
+
+# Compare ARIMA vs SARIMA
+dm_arima_sarima <- dm.test(arima_errors, sarima_errors, alternative = "two.sided")
+# Compare ARIMA vs ETS
+dm_arima_ets <- dm.test(arima_errors, ets_errors, alternative = "two.sided")
+# Compare SARIMA vs ETS
+dm_sarima_ets <- dm.test(sarima_errors, ets_errors, alternative = "two.sided")
+
+# Define the loss matrix (e.g., squared errors)
+loss_matrix <- cbind(
+  arima = (arima_errors)^2,
+  sarima = (sarima_errors)^2,
+  ets = (ets_errors)^2
+)
+
+# Apply the MCS procedure
+mcs_results <- MCSprocedure(Loss = loss_matrix, alpha = 0.05, B = 1000)
+class(mcs_results)
+
+print(dm_arima_sarima)
+print(dm_arima_ets)
+print(dm_sarima_ets)
+
+show(mcs_results)
+
