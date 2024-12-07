@@ -1,7 +1,7 @@
-#For now I have taken the automatic fittings only
+# For now I have taken the automatic fittings only
 
 # Fit the ARIMA model
-arima_fit <- auto.arima(train_ts , seasonal = FALSE)
+arima_fit <- auto.arima(train_ts, seasonal = FALSE)
 
 # Fit the SARIMA model
 sarima_fit <- auto.arima(train_ts)
@@ -40,19 +40,11 @@ model_comparison <- data.frame(
 # Display the comparison table
 print(model_comparison)
 
-
-#From the suggested paper
-#https://www.sciencedirect.com/science/article/pii/S0169207006000239
-
-# Required Libraries
-library(forecast)
-
-# Step 1: Define the Benchmark (Naïve) Method
+# Define the Benchmark (Naïve) Method
 naive_forecast <- stats::lag(train_ts, -1)  # Use the last observation as the forecast
 naive_forecast <- naive_forecast[-length(naive_forecast)]  # Remove the last NA
 benchmark_error <- train_ts[-1] - naive_forecast  # Forecast errors for naive method
 
-# Step 2: Calculate Forecast Errors for Each Model
 # Calculate residuals (errors) for each model
 arima_errors <- residuals(arima_fit)
 sarima_errors <- residuals(sarima_fit)
@@ -63,73 +55,28 @@ arima_errors <- arima_errors[-1]  # Remove first point to match benchmark
 sarima_errors <- sarima_errors[-1]
 ets_additive_errors <- ets_additive_errors[-1]
 
-# Step 3: Compute Relative Errors
-# Compute relative errors
-arima_relative_error <- arima_errors / benchmark_error
-sarima_relative_error <- sarima_errors / benchmark_error
-ets_additive_relative_error <- ets_additive_errors / benchmark_error
-
-# Winsorize (optional) to handle extreme values in benchmark_error
-winsorize <- function(x, cutoff = 0.05) {
-  quantiles <- quantile(x, probs = c(cutoff, 1 - cutoff), na.rm = TRUE)
-  x[x < quantiles[1]] <- quantiles[1]
-  x[x > quantiles[2]] <- quantiles[2]
-  return(x)
+# Step 7: Calculate q_t for each model
+calculate_q_t <- function(errors, time_series) {
+  n <- length(time_series)
+  denominator <- (1 / (n - 1)) * sum(abs(diff(time_series)))
+  q_t <- errors / denominator
+  return(q_t)
 }
 
-arima_relative_error <- winsorize(arima_relative_error)
-sarima_relative_error <- winsorize(sarima_relative_error)
-ets_additive_relative_error <- winsorize(ets_additive_relative_error)
+arima_q_t <- calculate_q_t(arima_errors, train_ts)
+sarima_q_t <- calculate_q_t(sarima_errors, train_ts)
+ets_additive_q_t <- calculate_q_t(ets_additive_errors, train_ts)
 
-# Step 4: Compute Relative Measures
-# Relative Absolute Errors
-arima_rae <- abs(arima_errors / benchmark_error)
-sarima_rae <- abs(sarima_errors / benchmark_error)
-ets_additive_rae <- abs(ets_additive_errors / benchmark_error)
+# Add MASE to the comparison table
+MASE <- c(abs(mean(arima_q_t, na.rm = TRUE)),
+              abs(mean(sarima_q_t, na.rm = TRUE)),
+                  abs(mean(ets_additive_q_t, na.rm = TRUE)))
 
-# GMRAE (Geometric Mean of Relative Absolute Errors)
-arima_gmrae <- exp(mean(log(arima_rae), na.rm = TRUE))
-sarima_gmrae <- exp(mean(log(sarima_rae), na.rm = TRUE))
-ets_additive_gmrae <- exp(mean(log(ets_additive_rae), na.rm = TRUE))
+model_comparison$MASE <- MASE
 
-# MdRAE (Median of Relative Absolute Errors)
-arima_mdrae <- median(arima_rae, na.rm = TRUE)
-sarima_mdrae <- median(sarima_rae, na.rm = TRUE)
-ets_additive_mdrae <- median(ets_additive_rae, na.rm = TRUE)
-
-# MRAE (Median of Relative Absolute Errors)
-arima_relmae <- mean(arima_rae, na.rm = TRUE)
-sarima_relmae <- mean(sarima_rae, na.rm = TRUE)
-ets_additive_relmae <- mean(ets_additive_rae, na.rm = TRUE)
-
-# Step 5: Compute Scaled Errors (MASE)
-# MAE of the benchmark method
-benchmark_mae <- mean(abs(benchmark_error), na.rm = TRUE)
-
-# Scaled Errors
-arima_scaled_error <- abs(arima_errors) / benchmark_mae
-sarima_scaled_error <- abs(sarima_errors) / benchmark_mae
-ets_additive_scaled_error <- abs(ets_additive_errors) / benchmark_mae
-
-#MASE (Mean Absolute Scaled Error)
-arima_mase <- mean(arima_scaled_error, na.rm = TRUE)
-sarima_mase <- mean(sarima_scaled_error, na.rm = TRUE)
-ets_additive_mase <- mean(ets_additive_scaled_error, na.rm = TRUE)
-
-# Step 6: Summarize the Comparison
-# Compile results into a data frame
-model_comparison <- data.frame(
-  Model = c("ARIMA", "SARIMA", "ETS Additive"),
-  GMRAE = c(arima_gmrae, sarima_gmrae, ets_additive_gmrae),
-  MdRAE = c(arima_mdrae, sarima_mdrae, ets_additive_mdrae),
-  RelMAE = c(arima_relmae, sarima_relmae, ets_additive_relmae),
-  MASE = c(arima_mase, sarima_mase, ets_additive_mase)
-)
-
-# Print the comparison table
+# Print the updated comparison table
 print(model_comparison)
 
-#I left out scale and percentage as no different datasets are used for this analysis
 
 
 
