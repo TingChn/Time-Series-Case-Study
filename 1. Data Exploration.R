@@ -131,8 +131,6 @@ ggplot(citibike, aes(x = time, y = diff_demand)) +
 
 #Note that now the data looks "more" stationary and there is no clear linear trend 
 
-
-
 #Transform the data set into ts series
 citibike_ts <- ts(citibike$demand, frequency = 24)  # daily seasonality assumed
 diff_citibike_ts <- ts(citibike$diff_demand, frequency = 24)
@@ -152,22 +150,9 @@ plot(decomposed_diff)
 
 lag.plot(citibike$demand, lags = 12, do.lines = FALSE)
 
-#Analysis of Lag Plots
-#Patterns in Lag 1:
-  
-#  The points in the lag 1 plot display a strong positive correlation, suggesting that demand in one hour is highly dependent on the demand in the previous hour.
-#This is typical for time series data with autocorrelation, especially if there's seasonality or a trend.
-#Weaker Correlations at Higher Lags:
-
-#As the lag increases (e.g., lag 6, lag 12), the correlation weakens, and the scatter becomes less structured.
-#However, the structure does not disappear entirely, indicating some longer-term dependencies (e.g., daily or weekly seasonality).
-#Spread of Points:
-
 #Across all lags, the spread of points widens at higher demand levels, especially above 1000. This could be indicative of heteroscedasticity (non-constant variance), which violates stationarity.
 #No Random Scattering:
 #In a stationary series, lag plots tend to show random scatter with no clear structure, as the values are independent of their lags. Here, the structure persists, suggesting non-stationarity.
-
-
 
 #Other features
 
