@@ -1,0 +1,58 @@
+#LET's compare the 6 forecasting models 
+
+#Compute the forecasting errors for each model
+error_arima_exp <- test_data$demand - arima_forecasts_exp
+error_sarima_exp <- test_data$demand - sarima_forecasts_exp
+error_ets_exp <- test_data$demand - ets_forecasts_exp
+
+error_arima_roll <- test_data$demand - arima_forecasts_roll
+error_sarima_roll <- test_data$demand - sarima_forecasts_roll
+error_ets_roll <- test_data$demand - ets_forecasts_roll
+
+
+# Calculate RMSE for each model
+arima_exp_rmse <- sqrt(mean(error_arima_exp^2))
+sarima_exp_rmse <- sqrt(mean(error_sarima_exp^2))
+ets_exp_rmse <- sqrt(mean(error_ets_exp^2))
+
+arima_roll_rmse <- sqrt(mean(error_arima_roll^2))
+sarima_roll_rmse <- sqrt(mean(error_sarima_roll^2))
+ets_roll_rmse <- sqrt(mean(error_ets_roll^2))
+
+
+# Calculate MAE for each model
+arima_exp_mae <- mean(abs(error_arima_exp))
+sarima__exp_mae <- mean(abs(error_sarima_exp))
+ets_exp_mae <- mean(abs(error_ets_exp))
+
+arima_roll_mae <- mean(abs(error_arima_roll))
+sarima_roll_mae <- mean(abs(error_sarima_roll))
+ets_roll_mae <- mean(abs(error_ets_roll))
+
+
+# Calculate q_t for each model
+calculate_q_t <- function(errors, time_series) {
+  n <- length(time_series)
+  denominator <- (1 / (n - 1)) * sum(abs(diff(time_series)))
+  q_t <- errors / denominator
+  return(q_t)
+}
+
+arima_exp_q_t <- calculate_q_t(error_arima_exp, test_ts)
+sarima_exp_q_t <- calculate_q_t(error_sarima_exp, test_ts)
+ets_exp_q_t <- calculate_q_t(error_ets_exp, test_ts)
+
+arima_roll_q_t <- calculate_q_t(error_arima_roll, test_ts)
+sarima_roll_q_t <- calculate_q_t(error_sarima_roll, test_ts)
+ets_roll_q_t <- calculate_q_t(error_ets_roll, test_ts)
+
+# Calculate MASE for each model
+MASE_exp <- c(mean(abs(arima_exp_q_t)),
+          mean(abs(sarima__exp_q_t)),
+          mean(abs(ets_exp_q_t)))
+
+
+# Calculate MASE for each model
+MASE_roll <- c(mean(abs(arima_roll_q_t)),
+          mean(abs(sarima_roll_q_t)),
+          mean(abs(ets_roll_q_t)))
