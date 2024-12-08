@@ -1,5 +1,7 @@
 # Load necessary libraries
 library(forecast)
+library(forecast)
+library(ggplot2)
 
 # Fit the ARIMA models
 arima_fit <- auto.arima(train_ts, seasonal = FALSE)
@@ -117,11 +119,6 @@ model_comparison_manual <- data.frame(
 
 # Display the updated comparison table
 print(model_comparison_manual)
-
-
-# Load necessary libraries
-library(forecast)
-library(ggplot2)
 
 # Generate in-sample forecasts for each model
 arima_in_sample <- fitted(arima_fit)  # In-sample forecast from ARIMA
