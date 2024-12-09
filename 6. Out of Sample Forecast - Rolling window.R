@@ -61,14 +61,52 @@ accuracy(arima_forecasts_roll, test_ts)
 accuracy(sarima_forecasts_roll, test_ts)
 accuracy(ets_forecasts_roll, test_ts)
 
-par(mfrow = c(1, 1))
-plot(test_ts)
-lines( ts(arima_forecasts_roll, start = c(2023, 5), frequency = 24), col= "red")
-lines( ts(sarima_forecasts_roll, start = c(2023, 5), frequency = 24), col= "green")
-lines( ts(ets_forecasts_roll, start = c(2023, 5), frequency = 24), col= "blue")
 
-par(mfrow = c(1, 1))
-plot(test_ts[0:23], type='l')
-lines( arima_forecasts_roll[0:23], col= "red")
-lines( sarima_forecasts_roll[0:23], col= "green")
-lines( ets_forecasts_roll[0:23], col= "blue")
+
+#Create the plot of the 3 different forecasts
+p_1 <- ggplot() + 
+  geom_line(aes(x = 1: 744, y = test_data$demand), color = "black", size = 1.0) + 
+  geom_line(aes(x = 1: 744, y = arima_forecasts_roll), color = "blue", size = 1.2, linetype = "dashed") + 
+  labs(title = "ARIMA Rolling Window Forecast", 
+       x = "Time", y = "Values") + 
+  scale_x_continuous(breaks = c(24, 144, 264, 384, 504, 600, 744)) +  # Manually specify breaks
+  theme_minimal()
+
+p_2 <- ggplot() + 
+  geom_line(aes(x = 1: 744, y = test_data$demand), color = "black", size = 1.0) + 
+  geom_line(aes(x = 1: 744, y = sarima_forecasts_roll), color = "red", size = 1.2, linetype = "dashed") + 
+  labs(title = "SARIMA Rolling Window Forecast", 
+       x = "Time", y = "Values") + 
+  scale_x_continuous(breaks = c(24, 144, 264, 384, 504, 600, 744)) +  # Manually specify breaks
+  theme_minimal()
+
+p_3 <- ggplot() + 
+  geom_line(aes(x = 1: 744, y = test_data$demand), color = "black", size = 1.0) + 
+  geom_line(aes(x = 1: 744, y = ets_forecasts_roll), color = "green", size = 1.2, linetype = "dashed") + 
+  labs(title = "ETS Rolling Window Forecast", 
+       x = "Time", y = "Values") + 
+  scale_x_continuous(breaks = c(24, 144, 264, 384, 504, 600, 744)) +  # Manually specify breaks
+  theme_minimal()
+
+# Arrange the plots in a 3x1 layout
+grid.arrange(p_1, p_2, p_3, ncol = 1)
+
+
+#Redo the analysis for the weekly frequency Sarima separately
+sarima_week_forecasts_roll <- c()
+
+# Rolling Window Forecasting with Incremental Updates
+for (i in sequence) {
+  current_train <- data_ts[(i):(n_train + i - 1)]
+  
+  current_train <- ts(current_train, start = c(2023, 1), frequency = 24*7)
+  # Fit models on the updated tr
+  sarima_fit <-  arima(current_train,
+                       order = c(2, 0, 1),     
+                       seasonal = list(order = c(0, 1, 0), period = 168)) 
+  
+  # Forecast the next 24 hours
+  # Save the forecasts
+  sarima_week_forecasts_roll <- c(sarima_week_forecasts_roll,forecast(sarima_fit, h = h)$mean)
+  
+}
