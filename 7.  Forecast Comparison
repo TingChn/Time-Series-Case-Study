@@ -5,6 +5,9 @@ error_arima_exp <- test_data$demand - arima_forecasts_exp
 error_sarima_exp <- test_data$demand - sarima_forecasts_exp
 error_ets_exp <- test_data$demand - ets_forecasts_exp
 
+error_sarima168_exp <- test_data$demand - sarima_week_forecasts_exp
+error_sarima168_roll <- test_data$demand - sarima_week_forecasts_roll
+
 error_arima_roll <- test_data$demand - arima_forecasts_roll
 error_sarima_roll <- test_data$demand - sarima_forecasts_roll
 error_ets_roll <- test_data$demand - ets_forecasts_roll
@@ -15,6 +18,9 @@ arima_exp_rmse <- sqrt(mean(error_arima_exp^2))
 sarima_exp_rmse <- sqrt(mean(error_sarima_exp^2))
 ets_exp_rmse <- sqrt(mean(error_ets_exp^2))
 
+sarima168_exp_rmse <- sqrt(mean(error_sarima168_exp)^2)
+sarima168_roll_rmse <- sqrt(mean(error_sarima168_roll)^2)
+
 arima_roll_rmse <- sqrt(mean(error_arima_roll^2))
 sarima_roll_rmse <- sqrt(mean(error_sarima_roll^2))
 ets_roll_rmse <- sqrt(mean(error_ets_roll^2))
@@ -24,6 +30,9 @@ ets_roll_rmse <- sqrt(mean(error_ets_roll^2))
 arima_exp_mae <- mean(abs(error_arima_exp))
 sarima__exp_mae <- mean(abs(error_sarima_exp))
 ets_exp_mae <- mean(abs(error_ets_exp))
+
+sarima168_exp_mae <- mean(abs(error_sarima168_exp))
+sarima168_roll_mae <- mean(abs(error_sarima168_roll))
 
 arima_roll_mae <- mean(abs(error_arima_roll))
 sarima_roll_mae <- mean(abs(error_sarima_roll))
@@ -42,6 +51,9 @@ arima_exp_q_t <- calculate_q_t(error_arima_exp, test_ts)
 sarima_exp_q_t <- calculate_q_t(error_sarima_exp, test_ts)
 ets_exp_q_t <- calculate_q_t(error_ets_exp, test_ts)
 
+sarima168_exp_q_t <- calculate_q_t(error_sarima168_exp, test_ts)
+sarima168_roll_q_t <- calculate_q_t(error_sarima168_roll, test_ts)
+
 arima_roll_q_t <- calculate_q_t(error_arima_roll, test_ts)
 sarima_roll_q_t <- calculate_q_t(error_sarima_roll, test_ts)
 ets_roll_q_t <- calculate_q_t(error_ets_roll, test_ts)
@@ -51,8 +63,10 @@ MASE_exp <- c(mean(abs(arima_exp_q_t)),
           mean(abs(sarima__exp_q_t)),
           mean(abs(ets_exp_q_t)))
 
+MASE168_exp <- mean(abs(sarima168_exp_q_t))
+MASE168_roll <- mean(abs(sarima168_roll_q_t))
 
-# Calculate MASE for each model
+
 MASE_roll <- c(mean(abs(arima_roll_q_t)),
           mean(abs(sarima_roll_q_t)),
           mean(abs(ets_roll_q_t)))
