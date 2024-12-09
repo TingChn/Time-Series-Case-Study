@@ -13,6 +13,10 @@ dm_arima_ets <- dm.test(arima_errors, ets_errors, alternative = "two.sided")
 # Compare SARIMA vs ETS
 dm_sarima_ets <- dm.test(sarima_errors, ets_errors, alternative = "two.sided")
 
+print(dm_arima_sarima)
+print(dm_arima_ets)
+print(dm_sarima_ets)
+
 # Define the loss matrix (e.g., squared errors)
 loss_matrix <- cbind(
   arima = (arima_errors)^2,
@@ -22,11 +26,18 @@ loss_matrix <- cbind(
 
 # Apply the MCS procedure
 mcs_results <- MCSprocedure(Loss = loss_matrix, alpha = 0.05, B = 1000)
-class(mcs_results)
 
-print(dm_arima_sarima)
-print(dm_arima_ets)
-print(dm_sarima_ets)
+under_penalty=5
+over_penalty=1
 
-show(mcs_results)
+arima_asymmetric <- ifelse(arima_errors < 0, abs(arima_errors) * under_penalty, abs(arima_errors) * over_penalty)
+sarima_asymmetric <- ifelse(sarima_errors < 0, abs(sarima_errors) * under_penalty, abs(sarima_errors) * over_penalty)
+ets_asymmetric <- ifelse(ets_errors < 0, abs(ets_errors) * under_penalty, abs(ets_errors) * over_penalty)
 
+loss_matrix_asymmetric <- cbind(
+  arima = arima_asymmetric,
+  sarima = sarima_asymmetric,
+  ets = ets_asymmetric
+)
+
+mcs_results_asymmetric <- MCSprocedure(Loss = loss_matrix_asymmetric, alpha = 0.05, B = 1000, statistic = "Tmax")
