@@ -17,7 +17,7 @@ print(dm_arima_sarima)
 print(dm_arima_ets)
 print(dm_sarima_ets)
 
-# Define the loss matrix (e.g., squared errors)
+# Define the loss matrix
 loss_matrix <- cbind(
   arima = (arima_errors)^2,
   sarima = (sarima_errors)^2,
