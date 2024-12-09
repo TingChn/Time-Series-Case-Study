@@ -9,8 +9,8 @@ arima_manual <- arima(train_ts, order = c(1, 1, 0))
 # Fit the SARIMA models
 sarima_fit <- auto.arima(train_ts)
 sarima_manual <- arima(train_ts,
-                       order = c(2, 0, 0),     # Non-seasonal AR(1), MA(1), differencing=0
-                       seasonal = list(order = c(3, 1, 0), period = 24))  # Seasonal AR(1), MA(1), differencing=0
+                       order = c(2, 0, 0),     # Non-seasonal AR(2), No MA, differencing=0
+                       seasonal = list(order = c(3, 1, 0), period = 24))  # Seasonal AR(3), No MA, differencing=1
 
 # Fit Exponential Smoothing models
 ets_additive <- ets(train_ts, model = "ZZZ")  # Automatically selects the best ETS model
