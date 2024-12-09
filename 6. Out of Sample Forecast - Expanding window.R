@@ -1,5 +1,8 @@
 #Useful link:
 #https://www.r-bloggers.com/2017/11/formal-ways-to-compare-forecasting-models-rolling-windows/
+library(ggplot2)
+library(gridExtra)
+
 
 # Initialize models on the full training dataset initially
 initial_arima <- arima(train_ts, order = c(2, 1, 0))
@@ -53,17 +56,52 @@ accuracy(arima_forecasts_exp, test_ts)
 accuracy(sarima_forecasts_exp, test_ts)
 accuracy(ets_forecasts_exp, test_ts)
 
-#Look at the performance of the forecast over the entire test sample
-#Still have to change the x-axis
-par(mfrow = c(1, 1))
-plot(test_ts, lwd =2)
-lines( ts(arima_forecasts_exp, start = c(2023, 5), frequency = 24), col= "red")
-lines( ts(sarima_forecasts_exp, start = c(2023, 5), frequency = 24), col= "green")
-lines( ts(ets_forecasts_exp, start = c(2023, 5), frequency = 24), col= "blue")
 
-#Look also at just the forecast of day one
-par(mfrow = c(1, 1))
-plot(test_ts[0:23], type='l')
-lines( arima_forecasts_exp[0:23], col= "red")
-lines( sarima_forecasts_exp[0:23], col= "green")
-lines( ets_forecasts_exp[0:23], col= "blue")
+#Create the plot of the 3 different forecasts
+p1 <- ggplot() + 
+  geom_line(aes(x = 1: 744, y = test_data$demand), color = "black", size = 1.0) + 
+  geom_line(aes(x = 1: 744, y = arima_forecasts_exp), color = "blue", size = 1.2, linetype = "dashed") + 
+  labs(title = "ARIMA Expanding Window Forecast", 
+       x = "Time", y = "Values") + 
+  scale_x_continuous(breaks = c(24, 144, 264, 384, 504, 600, 744)) +  # Manually specify breaks
+  theme_minimal()
+
+p2 <- ggplot() + 
+  geom_line(aes(x = 1: 744, y = test_data$demand), color = "black", size = 1.0) + 
+  geom_line(aes(x = 1: 744, y = sarima_forecasts_exp), color = "red", size = 1.2, linetype = "dashed") + 
+  labs(title = "SARIMA Expanding Window Forecast", 
+       x = "Time", y = "Values") + 
+  scale_x_continuous(breaks = c(24, 144, 264, 384, 504, 600, 744)) +  # Manually specify breaks
+  theme_minimal()
+
+p3 <- ggplot() + 
+  geom_line(aes(x = 1: 744, y = test_data$demand), color = "black", size = 1.0) + 
+  geom_line(aes(x = 1: 744, y = ets_forecasts_exp), color = "green", size = 1.2, linetype = "dashed") + 
+  labs(title = "ETS Expanding Window Forecast", 
+       x = "Time", y = "Values") + 
+  scale_x_continuous(breaks = c(24, 144, 264, 384, 504, 600, 744)) +  # Manually specify breaks
+  theme_minimal()
+
+# Arrange the plots in a 3x1 layout
+grid.arrange(p1, p2, p3, ncol = 1)
+
+
+#Redo the analysis for the weekly frequency Sarima separately
+sarima_week_forecasts_exp <- c()
+
+# Expanding Window Forecasting with Incremental Updates
+for (i in sequence) {
+  current_train <- data_ts[(1):(n_train + i - 1)]
+  
+  current_train <- ts(current_train, start = c(2023, 1), frequency = 24*7)
+  # Fit models on the updated tr
+  sarima_fit <-  arima(current_train,
+                       order = c(2, 0, 1),     # Non-seasonal AR(1), MA(1), differencing=0
+                       seasonal = list(order = c(0, 1, 0), period = 168)) 
+  
+  # Forecast the next 24 hours
+  # Save the forecasts
+  sarima_week_forecasts_exp <- c(sarima_week_forecasts_exp,forecast(sarima_fit, h = h)$mean)
+  
+  cat(i/24)
+}
