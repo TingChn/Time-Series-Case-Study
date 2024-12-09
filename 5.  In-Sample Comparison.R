@@ -1,5 +1,4 @@
 # Load necessary libraries
-# Load necessary libraries
 library(forecast)
 
 # Fit the ARIMA models
