@@ -4,7 +4,7 @@ library(tseries)
 library(ggplot2)
 library(dplyr)
 
-#Not really necessary but is cleaner
+#Create date column
 citibike$time <- as.POSIXct(paste(citibike$year, citibike$month, citibike$day, citibike$hour),
                             format="%Y %m %d %H", tz="UTC")
 # Filter the data from January 2023 to April 2023 and hence the rows corresponding to those postions in the data set.
