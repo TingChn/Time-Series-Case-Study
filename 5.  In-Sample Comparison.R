@@ -1,17 +1,16 @@
 # Load necessary libraries
+# Load necessary libraries
 library(forecast)
-library(forecast)
-library(ggplot2)
 
 # Fit the ARIMA models
 arima_fit <- auto.arima(train_ts, seasonal = FALSE)
-arima_manual <- arima(train_ts, order = c(1, 0, 6))
+arima_manual <- arima(train_ts, order = c(1, 1, 0))
 
 # Fit the SARIMA models
 sarima_fit <- auto.arima(train_ts)
 sarima_manual <- arima(train_ts,
-                       order = c(1, 0, 1),     # Non-seasonal AR(1), MA(1), differencing=0
-                       seasonal = list(order = c(1, 0, 1), period = 24))  # Seasonal AR(1), MA(1), differencing=0
+                       order = c(2, 0, 0),     # Non-seasonal AR(1), MA(1), differencing=0
+                       seasonal = list(order = c(3, 1, 0), period = 24))  # Seasonal AR(1), MA(1), differencing=0
 
 # Fit Exponential Smoothing models
 ets_additive <- ets(train_ts, model = "ZZZ")  # Automatically selects the best ETS model
