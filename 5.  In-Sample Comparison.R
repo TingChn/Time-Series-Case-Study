@@ -64,9 +64,9 @@ sarima_q_t <- calculate_q_t(sarima_errors, train_ts)
 ets_additive_q_t <- calculate_q_t(ets_additive_errors, train_ts)
 
 # Calculate MASE for each model
-MASE <- c(abs(mean(arima_q_t, na.rm = TRUE)),
-          abs(mean(sarima_q_t, na.rm = TRUE)),
-          abs(mean(ets_additive_q_t, na.rm = TRUE)))
+MASE <- c(mean(abs(arima_q_t, na.rm = TRUE)),
+          mean(abs(sarima_q_t, na.rm = TRUE)),
+          mean(abs(ets_additive_q_t, na.rm = TRUE)))
 
 # Calculate AIC and BIC for manual models
 arima_manual_aic <- AIC(arima_manual)
@@ -103,9 +103,9 @@ sarima_manual_q_t <- calculate_q_t(sarima_manual_errors, train_ts)
 ets_manual_q_t <- calculate_q_t(ets_manual_errors, train_ts)
 
 # Calculate MASE for manual models
-MASE_manual <- c(abs(mean(arima_manual_q_t, na.rm = TRUE)),
-                 abs(mean(sarima_manual_q_t, na.rm = TRUE)),
-                 abs(mean(ets_manual_q_t, na.rm = TRUE)))
+MASE_manual <- c(mean(abs(arima_manual_q_t)),
+                 mean(abs(sarima_manual_q_t)),
+                 mean(abs(ets_manual_q_t)))
 
 # Create a comparison table for all models
 model_comparison_manual <- data.frame(
