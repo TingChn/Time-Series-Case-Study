@@ -4,7 +4,7 @@ library(tseries)
 library(zoo)
 library(forecast)
 
-
+# Import the data
 load("citibike.RData")
 
 # Inspect the structure of the data
