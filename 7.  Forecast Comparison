@@ -88,6 +88,7 @@ for (i in 2:5){
   
   arima_exp_asymmetric <- asymmetric_loss(error_arima_exp, under_penalty = i)
   sarima_exp_asymmetric <- asymmetric_loss(error_sarima_exp, under_penalty = i)
+  ets_exp_asymmetric <- asymmetric_loss(error_ets_exp, under_penalty = i)
   cat("ARIMA Expanding Asymmetric Loss:", arima_exp_asymmetric, "\n")
   cat("SARIMA Expanding Asymmetric Loss:", sarima_exp_asymmetric, "\n")
   cat("ETS Expanding Asymmetric Loss:", ets_exp_asymmetric, "\n\n")
