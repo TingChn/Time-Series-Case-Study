@@ -73,7 +73,7 @@ MASE_roll <- c(mean(abs(arima_roll_q_t)),
 
 # Calculate asymmetric loss for each model
 asymmetric_loss <- function(errors, under_penalty, over_penalty = 1) {
-  penalties <- ifelse(errors < 0, abs(errors) * under_penalty, abs(errors) * over_penalty)
+  penalties <- ifelse(errors > 0, abs(errors) * under_penalty, abs(errors) * over_penalty)
   mean(penalties)
 }
 
